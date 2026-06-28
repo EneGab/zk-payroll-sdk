@@ -1,4 +1,12 @@
-import { rpc, Address, TransactionBuilder, Account, Contract, BASE_FEE, StrKey } from "@stellar/stellar-sdk";
+import {
+  rpc,
+  Address,
+  TransactionBuilder,
+  Account,
+  Contract,
+  BASE_FEE,
+  StrKey,
+} from "@stellar/stellar-sdk";
 import axios from "axios";
 import { ClientConfig } from "./config";
 import { ProofGeneratorConfig } from "./crypto/IProofGenerator";
@@ -56,12 +64,13 @@ export async function validateEnvironment(
         details: { networkPassphrase },
       });
       isRpcValid = true;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       diagnostics.push({
         component: "rpc",
         status: "error",
-        message: `RPC endpoint validation failed for URL "${config.networkUrl}": ${err.message || err}`,
-        error: err instanceof Error ? err : new Error(String(err)),
+        message: `RPC endpoint validation failed for URL "${config.networkUrl}": ${error.message}`,
+        error,
       });
     }
   }
@@ -91,8 +100,13 @@ export async function validateEnvironment(
       // If RPC is reachable, verify if contract is deployed on-chain
       if (isRpcValid && server) {
         try {
-          const dummySource = new Account("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF", "0");
-          const dummyAddress = new Address("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
+          const dummySource = new Account(
+            "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+            "0"
+          );
+          const dummyAddress = new Address(
+            "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
+          );
           const contract = new Contract(config.contractId);
 
           const networkResponse = await server.getNetwork();
@@ -131,12 +145,13 @@ export async function validateEnvironment(
               message: `Contract "${config.contractId}" is deployed and verified via simulation.`,
             });
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const error = err instanceof Error ? err : new Error(String(err));
           diagnostics.push({
             component: "contract",
             status: "error",
-            message: `Failed to verify contract deployment on-chain: ${err.message || err}`,
-            error: err instanceof Error ? err : new Error(String(err)),
+            message: `Failed to verify contract deployment on-chain: ${error.message}`,
+            error,
           });
         }
       } else {
@@ -171,12 +186,13 @@ export async function validateEnvironment(
           status: "success",
           message: `Successfully connected to WASM artifact URL: ${proofConfig.wasmUrl}`,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
         diagnostics.push({
           component: "artifacts",
           status: "error",
-          message: `WASM artifact URL "${proofConfig.wasmUrl}" check failed: ${err.message || err}`,
-          error: err instanceof Error ? err : new Error(String(err)),
+          message: `WASM artifact URL "${proofConfig.wasmUrl}" check failed: ${error.message}`,
+          error,
         });
       }
     }
@@ -201,12 +217,13 @@ export async function validateEnvironment(
           status: "success",
           message: `Successfully connected to ZKey artifact URL: ${proofConfig.zkeyUrl}`,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
         diagnostics.push({
           component: "artifacts",
           status: "error",
-          message: `ZKey artifact URL "${proofConfig.zkeyUrl}" check failed: ${err.message || err}`,
-          error: err instanceof Error ? err : new Error(String(err)),
+          message: `ZKey artifact URL "${proofConfig.zkeyUrl}" check failed: ${error.message}`,
+          error,
         });
       }
     }
