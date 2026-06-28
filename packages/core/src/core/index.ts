@@ -4,3 +4,4 @@ export * from "../crypto/IProofGenerator";
 export * from "./errors";
 export * from "../cache";
 export * from "./run-identifier";
+export * from "./validation";
